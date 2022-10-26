@@ -4,36 +4,35 @@ Input Format:
 <IP Address> - [<date>] "GET /projects/260 HTTP/1.1" <status code> <file size>
 """
 
-from collections import defaultdict
-from sys import stdin, exit as sysexit
-
-STATUS_CODES = ['200', '301', '400', '401', '403', '404', '405', '500']
+import sys
 
 
-def print_stats(file_size, status_codes):
-    print("File size: {}".format(total_size), *(
-        "{}: {}".format(k, status_codes[k]) for k in sorted(status_codes)
-    ), sep="\n")
+def print_size_and_codes(size, stat_codes):
+    print("File size: {:d}".format(size))
+    for k, v in sorted(stat_codes.items()):
+        if v:
+            print("{:s}: {:d}".format(k, v))
 
 
-if __name__ == '__main__':
-    status_codes = defaultdict(lambda: 0)
-    total_size = 0
-    line_count = 0
-    while True:
-        try:
-            for _ in range(10):
-                line = stdin.readline()
-                if line:
-                    *_, status_code, file_size = line.split()
-                    if status_code in STATUS_CODES:
-                        status_codes[status_code] += 1
-                    total_size += int(file_size)
-                else:
-                    if total_size:
-                        print_stats(file_size, status_codes)
-                    sysexit(0)
-            print_stats(file_size, status_codes)
-        except KeyboardInterrupt:
-            print_stats(file_size, status_codes)
-            raise
+def parse_stdin_and_compute():
+    size = 0
+    lines = 0
+    stat_codes = {"200": 0, "301": 0, "400": 0, "401": 0,
+                  "403": 0, "404": 0, "405": 0, "500": 0}
+    try:
+        for line in sys.stdin:
+            fields = list(map(str, line.strip().split(" ")))
+            size += int(fields[-1])
+            if fields[-2] in stat_codes:
+                stat_codes[fields[-2]] += 1
+            lines += 1
+            if lines % 10 == 0:
+                print_size_and_codes(size, stat_codes)
+    except KeyboardInterrupt:
+        print_size_and_codes(size, stat_codes)
+        raise
+
+    print_size_and_codes(size, stat_codes)
+
+
+parse_stdin_and_compute()
