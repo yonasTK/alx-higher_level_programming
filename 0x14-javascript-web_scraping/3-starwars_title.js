@@ -1,11 +1,7 @@
 #!/usr/bin/node
-// Print the title of the Star Wars movie matching the given number
+// prints the title of a starwars movie
 const request = require('request');
-const url = `https://swapi.co/api/films/${process.argv[2]}`;
-request(url, { json: true }, (err, resp, body) => {
-  if (err) {
-    console.log(err);
-  } else if (body) {
-    console.log(body.title);
-  }
+
+request(`https://swapi-api.hbtn.io/api/films/${process.argv[2]}`, function (err, response, body) {
+  console.log(err || JSON.parse(body).title);
 });
